@@ -1,6 +1,3 @@
-we will rolling update statergy for this it will remove the old pod and at the same time add new pod so application will be avilable 
-we will patach minimumread kubectl patch deployment kubia -p '{"spec": {"minReadySeconds": xxx}}'y seconds to the deployment 
-and then
 $kubectl patch deployment kubia -p '{"spec": {"minReadySeconds": aaa}}'
  then we will perform set image command so it will update to this image in the update
 $set image deployment aaa
