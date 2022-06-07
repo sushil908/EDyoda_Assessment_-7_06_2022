@@ -1,0 +1,117 @@
+voting app
+>kubectl apply -f .
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get all
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/db-b54cd94f4-pnpwf        1/1     Running   0          22m
+pod/redis-868d64d78-xz89n     1/1     Running   0          22m
+pod/result-5d57b59f4b-htpvq   1/1     Running   0          22m
+pod/vote-94849dc97-mr82r      1/1     Running   0          22m
+pod/worker-dd46d7584-l4n9s    1/1     Running   1          22m
+
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-pnpwf        1/1     Running   0          5m39s
+redis-868d64d78-xz89n     1/1     Running   0          5m38s
+result-5d57b59f4b-htpvq   1/1     Running   0          5m38s
+vote-94849dc97-mr82r      1/1     Running   0          5m38s
+worker-dd46d7584-l4n9s    1/1     Running   1          5m38s
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get svc
+NAME     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+db       ClusterIP   10.109.70.32    <none>        5432/TCP         9m7s
+redis    ClusterIP   10.105.36.25    <none>        6379/TCP         9m7s
+result   NodePort    10.103.123.90   <none>        5001:31005/TCP   4s
+vote     NodePort    10.96.227.44    <none>        5000:31004/TCP   46s
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get deploy
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+db       1/1     1            1           32m
+redis    1/1     1            1           32m
+result   1/1     1            1           32m
+vote     1/1     1            1           32m
+worker   1/1     1            1           32m
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get rs
+NAME                DESIRED   CURRENT   READY   AGE
+db-b54cd94f4        1         1         1       32m
+redis-868d64d78     1         1         1       32m
+result-5d57b59f4b   1         1         1       32m
+vote-94849dc97      1         1         1       32m
+worker-dd46d7584    1         1         1       32m
+
+>>>Observations after deleting pods
+
+ Deleting the vote pod:
+
+Observation: After deleting the pod other pod was spawned. 
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl delete po vote-94849dc97-mr82r
+pod "vote-94849dc97-mr82r" deleted
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS              RESTARTS   AGE
+db-b54cd94f4-pnpwf        1/1     Running             0          50m
+redis-868d64d78-xz89n     1/1     Running             0          50m
+result-5d57b59f4b-htpvq   1/1     Running             0          50m
+vote-94849dc97-mr82r      1/1     Terminating         0          50m
+vote-94849dc97-qz4lh      0/1     ContainerCreating   0          44s
+worker-dd46d7584-l4n9s    1/1     Running             1          50m
+
+>>>>after deleting worker pod
+
+Observation :--
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl delete po worker-dd46d7584-l4n9s
+pod "worker-dd46d7584-l4n9s" deleted
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS              RESTARTS   AGE
+db-b54cd94f4-pnpwf        1/1     Running             0          53m
+redis-868d64d78-xz89n     1/1     Running             0          53m
+result-5d57b59f4b-htpvq   1/1     Running             0          53m
+vote-94849dc97-qz4lh      1/1     Running             0          4m17s
+worker-dd46d7584-h8flb    0/1     ContainerCreating   0          75s
+
+>>>>>after deleting database 
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl delete po db-b54cd94f4-pnpwf
+pod "db-b54cd94f4-pnpwf" deleted
+
+after deleting Database ,voting data has lost and vote counter data also lost
+soo i restarted the result pod 
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS              RESTARTS   AGE
+db-b54cd94f4-4l4gk        0/1     ContainerCreating   0          26s
+db-b54cd94f4-pnpwf        1/1     Terminating         0          55m
+redis-868d64d78-xz89n     1/1     Running             0          55m
+result-5d57b59f4b-htpvq   1/1     Running             0          55m
+vote-94849dc97-qz4lh      1/1     Running             0          5m58s
+worker-dd46d7584-h8flb    1/1     Running             0          2m56s
+
+>>>>restarting result pod
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl delete po result-5d57b59f4b-htpvq
+pod "result-5d57b59f4b-htpvq" deleted
+
+[root@ip-172-31-23-165 k8s-specifications]# kubectl get po
+NAME                      READY   STATUS              RESTARTS   AGE
+db-b54cd94f4-4l4gk        1/1     Running             0          7m15s
+redis-868d64d78-xz89n     1/1     Running             0          62m
+result-5d57b59f4b-7nt6p   0/1     ContainerCreating   0          54s
+result-5d57b59f4b-htpvq   1/1     Terminating         0          62m
+vote-94849dc97-qz4lh      1/1     Running             0          12m
+worker-dd46d7584-h8flb    1/1     Running             0          9m45s
+
+
+
+
+
+
+
+
+
+
+
+
+
