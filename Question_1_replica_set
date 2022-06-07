@@ -1,0 +1,7 @@
+Daemon Set instead of Replica set is used for Pods to provide machine level functions like:
+
+-to run log collection daemon on every node of machine.
+
+-to run node monitoring daemon on every node of machine.
+
+-to run cluster storage daemon on every node
